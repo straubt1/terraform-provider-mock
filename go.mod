@@ -1,4 +1,4 @@
-module github.com/hashicorp/terraform-provider-scaffolding-framework
+module github.com/straubt1/terraform-provider-mock
 
 go 1.20
 
