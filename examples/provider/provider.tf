@@ -13,4 +13,5 @@ provider "mock" {}
 
 resource "mock_example" "example" {
   configurable_attribute = "some-value"
+  create_failure         = true
 }

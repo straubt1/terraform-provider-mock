@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -35,6 +36,7 @@ type ExampleResourceModel struct {
 	ConfigurableAttribute types.String `tfsdk:"configurable_attribute"`
 	Defaulted             types.String `tfsdk:"defaulted"`
 	Id                    types.String `tfsdk:"id"`
+	CreateFailure         types.Bool   `tfsdk:"create_failure"`
 }
 
 func (r *ExampleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -63,6 +65,9 @@ func (r *ExampleResource) Schema(ctx context.Context, req resource.SchemaRequest
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"create_failure": schema.BoolAttribute{
+				Optional: true,
 			},
 		},
 	}
@@ -110,9 +115,21 @@ func (r *ExampleResource) Create(ctx context.Context, req resource.CreateRequest
 	// save into the Terraform state.
 	data.Id = types.StringValue("example-id")
 
+	// if data.CreateFailure {
+	// 	resp.Diagnostics.AddError(
+	// 		"Error creating resource",
+	// 		"Failed to create the resource",
+	// 		nil,
+	// 	)
+	// 	return
+	// }
+
 	// Write logs using the tflog package
 	// Documentation: https://terraform.io/plugin/log
 	tflog.Trace(ctx, "created a resource")
+
+	delaySeconds := 3
+	time.Sleep(time.Duration(delaySeconds) * time.Second)
 
 	// Save data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
