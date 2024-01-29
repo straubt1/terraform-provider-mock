@@ -1,29 +1,61 @@
 # Terraform Interface Design
 
+provider "mock" {
+  configure {
+    failure         = true # Default false
+    failure_message = "I am a provider configuration failure" # Default nil
+    failure_type    = "Forced" # Default nil
+  }
+}
+
 
 resource "mock_resource" "create_failure" {
 
+  id = "mr-12345" # auto generated if not provided, saved to state
+
+  # Settings are saved to state, can this be a dynamic object without `jsonencode`?
+  settings = {
+    set_int = 1
+    set_string = "a"
+    set_bool = false
+    # Insert all types
+  }
+
+  planmodify {
+    failure         = true # Default false
+    failure_message = "I am a resoure plan modification failure" # Default nil
+    failure_type    = "Forced" # Default nil
+    delay = 5 # Default to 0, seconds to delay before returning
+  }
+
   create {
-    failure         = true
-    failure_message = "I am a create failure"
-    failure_type    = "Forced"
+    failure         = true # Default false
+    failure_message = "I am a resoure create failure" # Default nil
+    failure_type    = "Forced" # Default nil
+    delay = 5 # Default to 0, seconds to delay before returning
   }
 
   update {
-    failure         = true
-    failure_message = "I am a create failure"
-    failure_type    = "Forced"
+    failure         = true # Default false
+    failure_message = "I am a resoure upate failure" # Default nil
+    failure_type    = "Forced" # Default nil
+    delay = 5 # Default to 0, seconds to delay before returning
   }
 
   read {
-    failure         = true
-    failure_message = "I am a create failure"
-    failure_type    = "Forced"
+    failure         = true # Default false
+    failure_message = "I am a resoure read failure" # Default nil
+    failure_type    = "Forced" # Default nil
+    delay = 5 # Default to 0, seconds to delay before returning
+
+    # if set, the value to return during a read operation, gives ability to simulate bad read
+    override_id = "mr-12345"
+    override_settings = {}
   }
   delete {
-    failure         = true
-    failure_message = "I am a create failure"
-    failure_type    = "Forced"
+    failure         = true # Default false
+    failure_message = "I am a resoure delete failure" # Default nil
+    failure_type    = "Forced" # Default nil
+    delay = 5 # Default to 0, seconds to delay before returning
   }
-
 }
