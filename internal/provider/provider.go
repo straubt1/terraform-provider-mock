@@ -38,7 +38,7 @@ func (p *MockProvider) Schema(ctx context.Context, req provider.SchemaRequest, r
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
-				MarkdownDescription: "Example provider attribute",
+				MarkdownDescription: "Mock provider attribute",
 				Optional:            true,
 			},
 		},
@@ -57,7 +57,7 @@ func (p *MockProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 	// Configuration values are now available.
 	// if data.Endpoint.IsNull() { /* ... */ }
 
-	// Example client configuration for data sources and resources
+	// Mock client configuration for data sources and resources
 	client := http.DefaultClient
 	resp.DataSourceData = client
 	resp.ResourceData = client
@@ -65,13 +65,13 @@ func (p *MockProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 
 func (p *MockProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewExampleResource,
+		NewMockResource,
 	}
 }
 
 func (p *MockProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewExampleDataSource,
+		NewMockDataSource,
 	}
 }
 
