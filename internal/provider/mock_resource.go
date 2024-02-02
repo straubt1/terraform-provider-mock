@@ -38,11 +38,8 @@ type MockResource struct {
 
 // MockResourceModel describes the resource data model.
 type MockResourceModel struct {
-	ConfigurableAttribute types.String `tfsdk:"configurable_attribute"`
-	Defaulted             types.String `tfsdk:"defaulted"`
-	Id                    types.String `tfsdk:"id"`
-	CreateFailure         types.Bool   `tfsdk:"create_failure"`
-	Create                types.Object `tfsdk:"create"`
+	Id     types.String `tfsdk:"id"`
+	Create types.Object `tfsdk:"create"`
 }
 
 func (r *MockResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
