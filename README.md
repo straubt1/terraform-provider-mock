@@ -24,3 +24,6 @@ gh repo create --add-readme terraform --public terraform-provider-mock
 * https://developer.hashicorp.com/terraform/tutorials/providers-plugin-framework
 * https://github.com/hashicorp/terraform-provider-scaffolding-framework
 * [Random Integer](https://github.com/hashicorp/terraform-provider-random/blob/main/internal/provider/resource_integer.go)
+* https://developer.hashicorp.com/terraform/plugin/framework/handling-data/blocks/single-nested
+* https://github.com/hashicorp/terraform-provider-tfcoremock/tree/main/internal/provider/testdata/simple
+* https://github.com/hashicorp/terraform-provider-tfe/blob/main/docs/debugging.md

@@ -8,13 +8,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -38,8 +35,19 @@ type MockResource struct {
 
 // MockResourceModel describes the resource data model.
 type MockResourceModel struct {
-	Id     types.String `tfsdk:"id"`
-	Create types.Object `tfsdk:"create"`
+	Id         types.String `tfsdk:"id"`
+	Create     CRUDModel    `tfsdk:"create"`
+	Read       CRUDModel    `tfsdk:"read"`
+	Update     CRUDModel    `tfsdk:"update"`
+	Delete     CRUDModel    `tfsdk:"delete"`
+	PlanModify CRUDModel    `tfsdk:"planmodify"`
+}
+
+type CRUDModel struct {
+	Failure        types.Bool   `tfsdk:"failure"`
+	FailureMessage types.String `tfsdk:"failure_message"`
+	FailureType    types.String `tfsdk:"failure_type"`
+	Delay          types.Int64  `tfsdk:"delay"`
 }
 
 func (r *MockResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -51,45 +59,115 @@ func (r *MockResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "Mock resource",
 
+		Blocks: map[string]schema.Block{
+			"create": schema.SingleNestedBlock{
+				Attributes: map[string]schema.Attribute{
+					"failure": schema.BoolAttribute{
+						Optional: true,
+						// Default:  booldefault.StaticBool(false),
+					},
+					"failure_message": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"failure_type": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"delay": schema.Int64Attribute{
+						Optional: true,
+						// Default:  int64default.StaticInt64(0),
+					},
+				},
+			},
+			"read": schema.SingleNestedBlock{
+				Attributes: map[string]schema.Attribute{
+					"failure": schema.BoolAttribute{
+						Optional: true,
+						// Default:  booldefault.StaticBool(false),
+					},
+					"failure_message": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"failure_type": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"delay": schema.Int64Attribute{
+						Optional: true,
+						// Default:  int64default.StaticInt64(0),
+					},
+				},
+			},
+			"update": schema.SingleNestedBlock{
+				Attributes: map[string]schema.Attribute{
+					"failure": schema.BoolAttribute{
+						Optional: true,
+						// Default:  booldefault.StaticBool(false),
+					},
+					"failure_message": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"failure_type": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"delay": schema.Int64Attribute{
+						Optional: true,
+						// Default:  int64default.StaticInt64(0),
+					},
+				},
+			},
+			"delete": schema.SingleNestedBlock{
+				Attributes: map[string]schema.Attribute{
+					"failure": schema.BoolAttribute{
+						Optional: true,
+						// Default:  booldefault.StaticBool(false),
+					},
+					"failure_message": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"failure_type": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"delay": schema.Int64Attribute{
+						Optional: true,
+						// Default:  int64default.StaticInt64(0),
+					},
+				},
+			},
+			"planmodify": schema.SingleNestedBlock{
+				Attributes: map[string]schema.Attribute{
+					"failure": schema.BoolAttribute{
+						Optional: true,
+						// Default:  booldefault.StaticBool(false),
+					},
+					"failure_message": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"failure_type": schema.StringAttribute{
+						Optional: true,
+						// Default:  stringdefault.StaticString(""),
+					},
+					"delay": schema.Int64Attribute{
+						Optional: true,
+						// Default:  int64default.StaticInt64(0),
+					},
+				},
+			},
+		},
 		Attributes: map[string]schema.Attribute{
-			"configurable_attribute": schema.StringAttribute{
-				MarkdownDescription: "Mock configurable attribute",
-				Optional:            true,
-			},
-			"defaulted": schema.StringAttribute{
-				MarkdownDescription: "Mock configurable attribute with default value",
-				Optional:            true,
-				Computed:            true,
-				Default:             stringdefault.StaticString("example value when not configured"),
-			},
 			"id": schema.StringAttribute{
-				Computed:            true,
+				Optional:            true,
 				MarkdownDescription: "Mock identifier",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
-			},
-			"create_failure": schema.BoolAttribute{
-				Description: "Include lowercase alphabet characters in the result. Default value is `true`.",
-				Optional:    true,
-				Computed:    true,
-				Default:     booldefault.StaticBool(false),
-			},
-			"create": schema.ObjectAttribute{
-				AttributeTypes: map[string]attr.Type{
-					"failure":         types.BoolType,
-					"failure_message": types.StringType,
-					"failure_type":    types.StringType,
-				},
-				Optional: true,
-			},
-			"planmodify": schema.ObjectAttribute{
-				AttributeTypes: map[string]attr.Type{
-					"failure":         types.BoolType,
-					"failure_message": types.StringType,
-					"failure_type":    types.StringType,
-				},
-				Optional: true,
 			},
 		},
 	}
@@ -116,119 +194,173 @@ func (r *MockResource) Configure(ctx context.Context, req resource.ConfigureRequ
 }
 
 func (r *MockResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data MockResourceModel
+	var plan MockResourceModel
 
 	// Read Terraform plan data into the model
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	tflog.Trace(ctx, "createtrace: "+plan.Create.FailureMessage.String())
 
-	if resp.Diagnostics.HasError() {
-		return
+	if plan.Create.Failure.ValueBool() {
+		resp.Diagnostics.AddError(
+			plan.Create.FailureMessage.String(),
+			plan.Create.FailureType.String(),
+		)
 	}
 
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := r.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create example, got error: %s", err))
-	//     return
-	// }
-
-	// For the purposes of this example code, hardcoding a response value to
-	// save into the Terraform state.
-	data.Id = types.StringValue("example-id")
-
-	// if data.CreateFailure {
-	// 	resp.Diagnostics.AddError(
-	// 		"Error creating resource",
-	// 		"Failed to create the resource",
-	// 		nil,
-	// 	)
-	// 	return
-	// }
+	if plan.Id.IsUnknown() {
+		plan.Id = types.StringValue("set by provider")
+	}
 
 	// Write logs using the tflog package
 	// Documentation: https://terraform.io/plugin/log
 	tflog.Trace(ctx, "created a resource")
 
-	delaySeconds := 3
-	time.Sleep(time.Duration(delaySeconds) * time.Second)
+	// delaySeconds := 3
+
+	time.Sleep(time.Duration(plan.Create.Delay.ValueInt64()) * time.Second)
+	// call error at the end after delay
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	// Save data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
 func (r *MockResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data MockResourceModel
+	var state MockResourceModel
 
 	// Read Terraform prior state data into the model
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	tflog.Trace(ctx, "readtrace: "+state.Read.FailureMessage.String())
 
+	if state.Read.Failure.ValueBool() {
+		resp.Diagnostics.AddError(
+			state.Read.FailureMessage.String(),
+			state.Read.FailureType.String(),
+		)
+	}
+
+	if state.Id.IsUnknown() {
+		state.Id = types.StringValue("set by provider")
+	}
+
+	// Write logs using the tflog package
+	// Documentation: https://terraform.io/plugin/log
+	tflog.Trace(ctx, "read a resource")
+
+	// delaySeconds := 3
+
+	time.Sleep(time.Duration(state.Read.Delay.ValueInt64()) * time.Second)
+	// call error at the end after delay
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := r.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read example, got error: %s", err))
-	//     return
-	// }
-
 	// Save updated data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
 func (r *MockResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data MockResourceModel
+	var plan MockResourceModel
 
 	// Read Terraform plan data into the model
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	tflog.Trace(ctx, "updatetrace: "+plan.Update.FailureMessage.String())
 
+	if plan.Update.Failure.ValueBool() {
+		resp.Diagnostics.AddError(
+			plan.Update.FailureMessage.String(),
+			plan.Update.FailureType.String(),
+		)
+	}
+
+	// if plan.Id.IsUnknown() {
+	// 	plan.Id = types.StringValue("set by provider")
+	// }
+
+	// Write logs using the tflog package
+	// Documentation: https://terraform.io/plugin/log
+	tflog.Trace(ctx, "updated a resource")
+
+	// delaySeconds := 3
+
+	time.Sleep(time.Duration(plan.Update.Delay.ValueInt64()) * time.Second)
+	// call error at the end after delay
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := r.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update example, got error: %s", err))
-	//     return
-	// }
-
-	// Save updated data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+	// Save data into Terraform state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
 func (r *MockResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data MockResourceModel
+	var state MockResourceModel
 
 	// Read Terraform prior state data into the model
-	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	tflog.Trace(ctx, "deletetrace: "+state.Delete.FailureMessage.String())
 
+	if state.Delete.Failure.ValueBool() {
+		resp.Diagnostics.AddError(
+			state.Delete.FailureMessage.String(),
+			state.Delete.FailureType.String(),
+		)
+	}
+
+	// if state.Id.IsUnknown() {
+	// 	state.Id = types.StringValue("set by provider")
+	// }
+
+	// Write logs using the tflog package
+	// Documentation: https://terraform.io/plugin/log
+	tflog.Trace(ctx, "delete a resource")
+
+	// delaySeconds := 3
+
+	time.Sleep(time.Duration(state.Delete.Delay.ValueInt64()) * time.Second)
+	// call error at the end after delay
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := r.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete example, got error: %s", err))
-	//     return
-	// }
+	// Save updated data into Terraform state
+	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
 func (r MockResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	// Fill in logic.
+	var plan MockResourceModel
 
-	// var data MockResourceModel
+	// Read Terraform plan data into the model
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	tflog.Trace(ctx, "planmodifytrace: "+plan.PlanModify.FailureMessage.String())
 
-	// // Read Terraform plan data into the model
-	// resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if plan.PlanModify.Failure.ValueBool() {
+		resp.Diagnostics.AddError(
+			plan.PlanModify.FailureMessage.String(),
+			plan.PlanModify.FailureType.String(),
+		)
+	}
 
-	// tflog.Info(ctx, "plan modify2"+data.CreateFailure.String())
+	// if plan.Id.IsUnknown() {
+	// 	plan.Id = types.StringValue("set by provider")
+	// }
+
+	// Write logs using the tflog package
+	// Documentation: https://terraform.io/plugin/log
+	tflog.Trace(ctx, "plan modify a resource")
+
+	// delaySeconds := 3
+
+	time.Sleep(time.Duration(plan.PlanModify.Delay.ValueInt64()) * time.Second)
+	// call error at the end after delay
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Save data into Plan
+	resp.Diagnostics.Append(resp.Plan.Set(ctx, &plan)...)
 }
 
 func (r *MockResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
