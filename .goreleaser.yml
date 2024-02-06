@@ -48,6 +48,6 @@ release:
   extra_files:
     - glob: 'terraform-registry-manifest.json'
       name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
-  draft: true # Allow for manually examination of the release before its live
+  # draft: true # Allow for manually examination of the release before its live
 changelog:
   skip: true
