@@ -23,3 +23,9 @@ sudo /usr/sbin/DevToolsSecurity -enable
 dlv exec --accept-multiclient --continue --headless ./terraform-provider-mock -- -debug
 
 ```
+
+```
+export TF_CLI_CONFIG_FILE=~/.terraformrc
+```
+
+
