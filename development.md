@@ -24,8 +24,10 @@ dlv exec --accept-multiclient --continue --headless ./terraform-provider-mock --
 
 ```
 
+## Docs
+
 ```
-export TF_CLI_CONFIG_FILE=~/.terraformrc
+GOOS=darwin GOARCH=amd64 go generate ./...
 ```
 
 

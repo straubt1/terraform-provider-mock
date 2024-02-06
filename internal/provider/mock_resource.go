@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -20,9 +19,9 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &MockResource{}
 
-// TODO: add import and modify plan options
-var _ resource.ResourceWithImportState = &MockResource{}
 var _ resource.ResourceWithModifyPlan = &MockResource{}
+
+// var _ resource.ResourceWithImportState = &MockResource{}
 
 func NewMockResource() resource.Resource {
 	return &MockResource{}
@@ -61,101 +60,126 @@ func (r *MockResource) Schema(ctx context.Context, req resource.SchemaRequest, r
 
 		Blocks: map[string]schema.Block{
 			"create": schema.SingleNestedBlock{
+				MarkdownDescription: "Create() behavior modifiers.",
 				Attributes: map[string]schema.Attribute{
 					"failure": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Force a failure.",
 						// Default:  booldefault.StaticBool(false),
 					},
 					"failure_message": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, message to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"failure_type": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, type to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"delay": schema.Int64Attribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Number of seconds to delay during the operation.",
 						// Default:  int64default.StaticInt64(0),
 					},
 				},
 			},
 			"read": schema.SingleNestedBlock{
+				MarkdownDescription: "Read() behavior modifiers.",
 				Attributes: map[string]schema.Attribute{
 					"failure": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Force a failure.",
 						// Default:  booldefault.StaticBool(false),
 					},
 					"failure_message": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, message to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"failure_type": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, type to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"delay": schema.Int64Attribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Number of seconds to delay during the operation.",
 						// Default:  int64default.StaticInt64(0),
 					},
 				},
 			},
 			"update": schema.SingleNestedBlock{
+				MarkdownDescription: "Update() behavior modifiers.",
 				Attributes: map[string]schema.Attribute{
 					"failure": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Force a failure.",
 						// Default:  booldefault.StaticBool(false),
 					},
 					"failure_message": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, message to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"failure_type": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, type to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"delay": schema.Int64Attribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Number of seconds to delay during the operation.",
 						// Default:  int64default.StaticInt64(0),
 					},
 				},
 			},
 			"delete": schema.SingleNestedBlock{
+				MarkdownDescription: "Delete() behavior modifiers.",
 				Attributes: map[string]schema.Attribute{
 					"failure": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Force a failure.",
 						// Default:  booldefault.StaticBool(false),
 					},
 					"failure_message": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, message to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"failure_type": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, type to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"delay": schema.Int64Attribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Number of seconds to delay during the operation.",
 						// Default:  int64default.StaticInt64(0),
 					},
 				},
 			},
 			"planmodify": schema.SingleNestedBlock{
+				MarkdownDescription: "ModifyPlan() behavior modifiers.",
 				Attributes: map[string]schema.Attribute{
 					"failure": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Force a failure.",
 						// Default:  booldefault.StaticBool(false),
 					},
 					"failure_message": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, message to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"failure_type": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "When `failure == true`, type to display.",
 						// Default:  stringdefault.StaticString(""),
 					},
 					"delay": schema.Int64Attribute{
-						Optional: true,
+						Optional:            true,
+						MarkdownDescription: "Number of seconds to delay during the operation.",
 						// Default:  int64default.StaticInt64(0),
 					},
 				},
@@ -363,6 +387,6 @@ func (r MockResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanReq
 	resp.Diagnostics.Append(resp.Plan.Set(ctx, &plan)...)
 }
 
-func (r *MockResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
-}
+// func (r *MockResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+// 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+// }

@@ -36,6 +36,7 @@ func (p *MockProvider) Metadata(ctx context.Context, req provider.MetadataReques
 
 func (p *MockProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		MarkdownDescription: "Supports the capability of injecting provider errors to develop and understand how the Terraform workflow operates when there are failures. This is a logical provider, which means that it works entirely within Terraform logic, and does not interact with any other services.",
 		Attributes: map[string]schema.Attribute{
 			"endpoint": schema.StringAttribute{
 				MarkdownDescription: "Mock provider attribute",
@@ -71,7 +72,7 @@ func (p *MockProvider) Resources(ctx context.Context) []func() resource.Resource
 
 func (p *MockProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
-		NewMockDataSource,
+		// NewMockDataSource, # TODO:
 	}
 }
 
